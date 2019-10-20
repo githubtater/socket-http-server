@@ -22,15 +22,12 @@ def response_ok(body=b"This is a minimal response", mimetype=b"text/plain"):
         '''
     """
 
-    response = b'\r\n'.join([
+    return b'\r\n'.join([
         b'HTTP/1.1 200 OK',
         b'Content-Type: ' + mimetype,
-        b'<html><h1>Welcome:</h1>',
-        b'<body> ' + body + b'</body>',
-        b'</html>'
-        ])
-
-    return response
+        b'',
+        body])
+    # return response
 
 
 def response_method_not_allowed():
@@ -48,7 +45,7 @@ def response_not_found():
     return b'\r\n'.join([
         b'HTTP/1.1 404 Response Not Found',
         b'',
-        b'Page not found.'
+        b'The requested page was not found.'
     ])
 
 
@@ -95,27 +92,25 @@ def response_path(path):
         response_path('/a_page_that_doesnt_exist.html') -> Raises a NameError
 
     """
-    requested_path = os.path.join(os.getcwd(), 'webroot', path)
-
+    requested_path = os.path.join('webroot', path[1:])
+    print('requested path', requested_path)
     if not os.path.exists(requested_path):
         raise NameError
-        content = b"not implemented"
-        mime_type = b"not implemented"
+        content = b'not implemented'
+        mime_type = b'not implemented'
 
         return content, mime_type
 
     if os.path.isdir(requested_path):
         items = os.listdir(requested_path)
-        content = "\r\n".join(os.listdir(requested_path)).encode("utf8")
-        mime_type = b"text/plain"
+        content = '\r\n'.join(os.listdir(requested_path)).encode('utf8')
+        mime_type = b'text/plain'
 
         return content, mime_type
-
     else:
         # Path is a file, open in bytes
         with open(requested_path, 'rb') as f:
             content = f.read()
-
         mime_type = mimetypes.guess_type(requested_path, strict=True)[0].encode("utf8")
 
         return content, mime_type
@@ -170,10 +165,10 @@ def server(log_buffer=sys.stderr):
                     response = response_ok(body=content, mimetype=mime_type)
                 except NotImplementedError:
                     response = response_method_not_allowed()
+                    print("Response not allowed", file=log_buffer)
                 except NameError:
                     response = response_not_found()
-
-
+                    print("Response not found", file=log_buffer)
 
                 # TODO; If parse_request raised a NotImplementedError, then let
                 # response be a method_not_allowed response. If response_path raised
