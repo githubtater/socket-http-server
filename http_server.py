@@ -43,7 +43,7 @@ def response_method_not_allowed():
 def response_not_found():
     """Returns a 404 Not Found response"""
     return b'\r\n'.join([
-        b'HTTP/1.1 404 Response Not Found',
+        b'HTTP/1.1 404 Not Found',
         b'',
         b'The requested page was not found.'
     ])
